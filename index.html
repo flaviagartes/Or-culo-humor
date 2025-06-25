@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔮 Oráculo de Humor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #5a67d8;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .mood-btn {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 1.1em;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .mood-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .mood-btn.feliz { background: linear-gradient(45deg, #ffeaa7, #fab1a0); }
+        .mood-btn.triste { background: linear-gradient(45deg, #74b9ff, #0984e3); }
+        .mood-btn.estressado { background: linear-gradient(45deg, #fd79a8, #e84393); }
+        .mood-btn.motivado { background: linear-gradient(45deg, #00b894, #00cec9); }
+        .mood-btn.preguicoso { background: linear-gradient(45deg, #a29bfe, #6c5ce7); }
+        .mood-btn.confuso { background: linear-gradient(45deg, #fdcb6e, #e17055); }
+
+        .oracle-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            color: white;
+            display: none;
+        }
+
+        .oracle-section.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .oracle-text {
+            font-size: 1.3em;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .generate-btn {
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .current-mood {
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .crystal-ball {
+            font-size: 3em;
+            margin: 20px 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 Oráculo de Humor</h1>
+        <p class="subtitle">Escolha seu humor e receba uma mensagem especial!</p>
+        
+        <div class="mood-grid">
+            <button class="mood-btn feliz" onclick="selectMood('feliz', '😊')">😊 Feliz</button>
+            <button class="mood-btn triste" onclick="selectMood('triste', '😢')">😢 Triste</button>
+            <button class="mood-btn estressado" onclick="selectMood('estressado', '😤')">😤 Estressado</button>
+            <button class="mood-btn motivado" onclick="selectMood('motivado', '💪')">💪 Motivado</button>
+            <button class="mood-btn preguicoso" onclick="selectMood('preguicoso', '😴')">😴 Preguiçoso</button>
+            <button class="mood-btn confuso" onclick="selectMood('confuso', '🤔')">🤔 Confuso</button>
+        </div>
+
+        <div class="oracle-section" id="oracleSection">
+            <div class="current-mood" id="currentMood"></div>
+            <div class="crystal-ball">🔮</div>
+            <div class="oracle-text" id="oracleText"></div>
+            <button class="generate-btn" onclick="generateNewPhrase()">Nova Frase ✨</button>
+        </div>
+    </div>
+
+    <script>
+        const phrases = {
+            feliz: [
+                "Sua alegria é contagiante! Continue espalhando sorrisos por onde passar! 🌟",
+                "Dias felizes como hoje merecem ser celebrados. Dance, cante, viva! 🎉",
+                "Sua energia positiva está iluminando o mundo ao seu redor! ✨",
+                "Que essa felicidade se multiplique e volte para você em dobro! 🌈",
+                "Você está radiante! Aproveite cada momento dessa sensação incrível! 🌞",
+                "A felicidade é o perfume da alma. Você está exalando pura alegria! 🌺",
+                "Seu sorriso tem o poder de transformar qualquer dia comum em extraordinário! 😊",
+                "Você é pura luz caminhando por este mundo. Continue brilhando! ⭐",
+                "A vida está te presenteando com momentos mágicos. Aproveite cada um! 🎁",
+                "Sua vibração positiva está atraindo coisas incríveis para sua vida! 🧲",
+                "Hoje você acordou no lado certo da vida. Que sorte a nossa! 🍀",
+                "Você é prova viva de que a felicidade é possível. Inspire outros! 💫",
+                "Sua alegria é como um raio de sol em dia nublado! ☀️",
+                "O universo está conspirando a seu favor hoje. Sinta essa energia! 🌍",
+                "Você tem o dom de encontrar beleza em tudo. Que talento lindo! 🎨",
+                "Sua felicidade é tão genuína que faz os outros quererem ser felizes também! 💕",
+                "Hoje você é a personificação da palavra 'blessed'! 🙏",
+                "Seu coração está cantando uma música de pura alegria! 🎵",
+                "Você está vivendo seus melhores dias. E ainda vem mais por aí! 🚀",
+                "A felicidade te escolheu como casa hoje. Seja uma boa anfitriã! 🏠"
+            ],
+            triste: [
+                "Mesmo nas tempestades, lembre-se: depois da chuva sempre vem o arco-íris 🌈",
+                "Sentimentos passam como nuvens no céu. Logo o sol vai brilhar novamente ☀️",
+                "Hoje pode ser difícil, mas você é mais forte do que imagina 💪",
+                "Permita-se sentir, mas não se esqueça: você merece ser feliz 💜",
+                "Cada lágrima limpa a alma. Amanhã será um novo dia cheio de possibilidades 🌅",
+                "Às vezes precisamos nos quebrar para nos reconstruir ainda mais fortes 💎",
+                "Sua tristeza é válida, mas ela não define quem você é 🤗",
+                "Até as flores mais bonitas precisam de chuva para crescer 🌸",
+                "Este momento difícil vai passar. Você já superou outros e vai superar este também 🌊",
+                "Seja gentil consigo mesmo. Você está fazendo o melhor que pode 💕",
+                "A vida tem fases, e esta é só uma delas. Logo vem uma melhor 🌙",
+                "Suas lágrimas são sementes de uma força que você ainda não conhece 🌱",
+                "Não há noite tão escura que não termine com o amanhecer 🌄",
+                "Você não está sozinho nessa jornada. O amor sempre encontra um jeito 💖",
+                "Cada dor carrega em si uma lição valiosa. Você está aprendendo algo importante 📚",
+                "Seu coração sensível é um presente, mesmo quando dói 💝",
+                "Esta fase difícil é apenas um capítulo, não o livro inteiro 📖",
+                "Você tem permissão para sentir tudo, mas também para se curar 🩹",
+                "A tristeza de hoje é a sabedoria de amanhã 🦉",
+                "Mesmo machucado, seu coração ainda bate. Isso é resistência pura ❤️"
+            ],
+            estressado: [
+                "Respire fundo. Você já superou 100% dos seus dias difíceis até agora! 🌬️",
+                "O estresse é temporário, mas sua capacidade de superação é eterna 💎",
+                "Pause, respire e lembre-se: você tem controle sobre suas reações 🧘‍♀️",
+                "Cada desafio é uma oportunidade disfarçada. Você vai conseguir! 🎯",
+                "Sua calma interior é mais poderosa que qualquer tempestade exterior 🌊",
+                "Você não precisa carregar o mundo nas costas. Divida o peso 🌍",
+                "Este momento de pressão está forjando um diamante. Aguente firme! 💍",
+                "Estresse é só energia mal direcionada. Canalize-a para algo positivo ⚡",
+                "Você já enfrentou situações piores e saiu vitorioso. Esta não será diferente 🏆",
+                "Respire como se sua vida dependesse disso. Porque realmente depende 🫁",
+                "Uma coisa de cada vez. Você não precisa resolver tudo hoje 📋",
+                "Seu sistema nervoso precisa de uma pausa. Dê esse presente para si mesmo 🎁",
+                "O estresse de hoje é a história de superação de amanhã 📚",
+                "Você é maior que qualquer problema que esteja enfrentando 🦁",
+                "Às vezes a pressão serve para nos mostrar nossa verdadeira força 💪",
+                "Pare, respire, reorganize e recomeçe. Você tem esse poder 🔄",
+                "Nem tudo precisa ser urgente. Priorize sua paz mental 🕊️",
+                "Você está no controle, mesmo quando parece que não está 🎮",
+                "Este estresse vai passar, mas sua capacidade de lidar com ele vai ficar 🌟",
+                "Lembre-se: você já é incrível por estar tentando 👑"
+            ],
+            motivado: [
+                "Sua determinação é sua superpotência! Nada pode te parar hoje! 🚀",
+                "Com essa energia, você pode mover montanhas! Vá em frente! ⛰️",
+                "Seu foco é laser e seus sonhos são o alvo. Atire certeiro! 🎯",
+                "A motivação de hoje é o sucesso de amanhã. Continue assim! 🏆",
+                "Você nasceu para brilhar! Deixe sua luz iluminar seus objetivos! ⭐",
+                "Essa energia de conquista está irradiando de você! Arrase! 🔥",
+                "Você tem fome de vitória e isso é lindo de se ver! 🦁",
+                "Seus sonhos estão do outro lado do seu esforço. Continue caminhando! 🌉",
+                "Você é imparável quando decide que quer algo! 💥",
+                "Essa motivação é contagiante! Você está inspirando até quem não te conhece! ⚡",
+                "Você não está apenas sonhando, está construindo! 🏗️",
+                "Sua determinação é mais forte que qualquer obstáculo! 🛡️",
+                "O universo está conspirando para te ver vencer! 🌌",
+                "Você tem fogo no olho e sonhos no coração. Combinação perfeita! 👁️‍🗨️",
+                "Cada passo seu está te aproximando da sua melhor versão! 🚶‍♂️",
+                "Sua motivação de hoje está plantando as sementes do seu futuro! 🌱",
+                "Você não é apenas forte, você é IMPLACÁVEL! ⚔️",
+                "O sucesso já está te esperando. Continue em frente! 🎊",
+                "Você transformou motivação em combustível. Agora é só acelerar! 🏎️",
+                "Seu potencial está sendo desbloqueado agora mesmo! 🔓"
+            ],
+            preguicoso: [
+                "Às vezes descansar é a coisa mais produtiva que podemos fazer 😌",
+                "Seu corpo está pedindo uma pausa. Escute-o, ele sabe o que precisa 🛋️",
+                "Preguiça também é autocuidado. Aproveite esse momento zen! 🧘‍♂️",
+                "Até as pilhas mais potentes precisam ser recarregadas às vezes 🔋",
+                "O ócio criativo é onde nascem as melhores ideias. Relaxe! 💭",
+                "Você trabalhou duro para merecer esse momento de pausa ☁️",
+                "Não fazer nada às vezes é fazer tudo pelo seu bem-estar 🌸",
+                "Sua preguiça de hoje pode ser sabedoria disfarçada 🦉",
+                "Até os leões passam 20 horas do dia descansando. Seja um leão! 🦁",
+                "Você não é preguiçoso, você está em modo de conservação de energia 🔋",
+                "O mundo não vai acabar se você tirar um dia só para você 🌍",
+                "Às vezes precisamos ir devagar para chegar longe 🐢",
+                "Sua alma está pedindo um tempo de qualidade consigo mesma 💆‍♀️",
+                "Descansar é um ato revolucionário numa sociedade que não para 🔄",
+                "Você tem permissão para não ser produtivo hoje 📋",
+                "Este é seu momento de recarregar as energias para brilhar depois ⚡",
+                "Preguiça é só outra palavra para 'pausa necessária' 😴",
+                "Você está praticando a arte de não fazer nada. Que talento! 🎨",
+                "Sua preguiça de hoje é investimento na sua energia de amanhã 📈",
+                "Relaxe sem culpa. Você merece esse momento de paz 🕊️"
+            ],
+            confuso: [
+                "Na confusão também há sabedoria. Sua mente está processando algo importante 🧠",
+                "Está tudo bem não ter todas as respostas agora. O tempo revela tudo 🕰️",
+                "A confusão é o primeiro passo para a clareza. Seja paciente consigo 🌅",
+                "Questionar é sinal de inteligência. Continue explorando suas dúvidas 🔍",
+                "Do caos nasce a ordem. Sua mente está reorganizando suas prioridades 🔄",
+                "Você não está perdido, você está em processo de descoberta 🗺️",
+                "A confusão de hoje é a sabedoria de amanhã 🌱",
+                "Às vezes precisamos nos perder para nos encontrar de verdade 🧭",
+                "Sua mente está fazendo uma faxina. Logo tudo ficará mais claro 🧹",
+                "Não ter certeza de tudo é humano. Você está sendo humano 👤",
+                "A confusão é sua mente expandindo suas possibilidades 🌌",
+                "Você está questionando porque está crescendo 📏",
+                "Este momento de incerteza está preparando você para algo maior 🎭",
+                "Confusão é criatividade buscando direção 🎨",
+                "Sua mente está processando várias opções. Que riqueza! 💎",
+                "Não saber tudo é liberdade para aprender sempre 📚",
+                "Você está na fase mais honesta da vida: admitindo que não sabe tudo 🤷‍♀️",
+                "A neblina mental vai passar e você verá com mais clareza 🌫️",
+                "Sua confusão é evidência de que você está pensando profundamente 🤔",
+                "Aceite a confusão como parte da jornada para a sabedoria 🛤️"
+            ]
+        };
+
+        let currentMoodType = '';
+
+        function selectMood(mood, emoji) {
+            currentMoodType = mood;
+            const oracleSection = document.getElementById('oracleSection');
+            const currentMoodDiv = document.getElementById('currentMood');
+            
+            currentMoodDiv.textContent = `Humor atual: ${emoji} ${mood.charAt(0).toUpperCase() + mood.slice(1)}`;
+            oracleSection.classList.add('show');
+            
+            generateNewPhrase();
+        }
+
+        function generateNewPhrase() {
+            if (!currentMoodType) return;
+            
+            const moodPhrases = phrases[currentMoodType];
+            const randomPhrase = moodPhrases[Math.floor(Math.random() * moodPhrases.length)];
+            
+            const oracleText = document.getElementById('oracleText');
+            oracleText.style.opacity = '0';
+            
+            setTimeout(() => {
+                oracleText.textContent = randomPhrase;
+                oracleText.style.opacity = '1';
+            }, 200);
+        }
+    </script>
+</body>
+  </html>
